@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新增员工页面</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+<div align="center">
+    <form id="ff" method="post">
+        <div style="margin-bottom:20px">
+            <table>
+                <tr>
+                    <td>员工姓名</td>
+                    <td>
+                        <input class="easyui-textbox" name="ename" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>员工性别</td>
+                    <td>
+                        男：<input type="radio" value="0" name="esex" checked="checked" >
+                        女：<input type="radio" value="1" name="esex" checked="checked" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>员工年龄</td>
+                    <td>
+                        <input class="easyui-textbox" name="eage" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>联系电话</td>
+                    <td>
+                        <input class="easyui-textbox" name="phone" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>入职日期</td>
+                    <td>
+                        <input class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" name="hireDate">
+                    </td>
+                </tr>
+                <tr>
+                    <td>工号</td>
+                    <td>
+                        <input class="easyui-textbox" name="jobnumber" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>初始密码</td>
+                    <td>
+                        <input class="easyui-textbox" name="password" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>员工角色</td>
+                    <td>
+                        <input id="cc1" name="rids" class="easyui-combobox" data-options="
+                        valueField: 'rid',
+                        textField: 'rname',
+                        url:'/role/getAllRoles'
+                        ">
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </form>
+</div>
+<div style="text-align:center;padding:5px 0">
+    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">提交</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">取消</a>
+</div>
+
+<script>
+    function submitForm(){
+        $('#ff').form('submit', {
+            url:"/employee/addEmployee",
+            success:function(data){
+                var obj = eval("(" + data + ")");
+                alert(obj.message);
+                if(obj.success){
+                    window.location.href = "/employeeList.html";
+                }else{
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    function clearForm(){
+        $('#ff').form('clear');
+    }
+
+    function myformatter(date){
+        var y = date.getFullYear();
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+    }
+    function myparser(s){
+        if (!s) return new Date();
+        var ss = (s.split('-'));
+        var y = parseInt(ss[0],10);
+        var m = parseInt(ss[1],10);
+        var d = parseInt(ss[2],10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+            return new Date(y,m-1,d);
+        } else {
+            return new Date();
+        }
+    }
+</script>
+</body>
+</html>

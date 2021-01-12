@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>修改页面</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+<div align="center">
+    <form id="ff" method="post">
+        <div style="margin-bottom:20px">
+            <input type="hidden" name="rid" id="rid">
+            <table>
+                <tr>
+                    <td>角色编码</td>
+                    <td>
+                        <input id="rcode" class="easyui-textbox" name="rcode" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>角色名称</td>
+                    <td>
+                        <input id="rname" class="easyui-textbox" name="rname" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>功能级别</td>
+                    <td>
+                        <ul id="tt"></ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </form>
+</div>
+<div style="text-align:center;padding:5px 0">
+    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">修改</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">取消</a>
+</div>
+
+<script>
+
+    $(document).ready(function(){
+        $.ajax({
+            url:"/role/getUpdateRole2",
+            success:function (data) {
+                $("#rid").val(data.rid);
+                $('#rcode').textbox('setValue',data.rcode);
+                $('#rname').textbox('setValue',data.rname);
+                $('#tt').tree({
+                    url:'/function/getFunctionOfRole',
+                    checkbox:true
+                });
+            }
+        });
+    });
+
+    function submitForm(){
+        var nodes = $('#tt').tree('getChecked', ['checked','indeterminate']);
+        var fids = "";
+        for (var i=0;i<nodes.length;i++){
+            fids += nodes[i].id + ",";
+        }
+        $('#ff').form('submit', {
+            url:"/role/updateRole?fids="+fids,
+            success:function(data){
+                var obj = eval("(" + data + ")");
+                alert(obj.message);
+                if(obj.success){
+                    window.location.href = "/roleList.html";
+                }else{
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    function clearForm(){
+        $('#ff').form('clear');
+    }
+</script>
+</body>
+</html>

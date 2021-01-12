@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+https://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/aop 
+https://www.springframework.org/schema/aop/spring-aop.xsd 
+http://www.springframework.org/schema/context 
+https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--初始化shiroFilter-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!--未登录成功页面-->
+        <property name="loginUrl" value="/index.html"/>
+        <!--登录成功页面-->
+        <property name="successUrl" value="/main.html"/>
+        <!--未授权页面-->
+        <property name="unauthorizedUrl" value="/index.html"/>
+        <!-- override these for application-specific URLs if you like:
+        <property name="loginUrl" value="/login.jsp"/>
+        <property name="successUrl" value="/home.jsp"/>
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"/> -->
+        <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean -->
+        <!-- defined will be automatically acquired and available via its beanName in chain -->
+        <!-- definitions, but you can perform instance overrides or name aliases here if you like: -->
+        <!-- <propery name="filters">
+        <util:map>
+        <entry key="anAlias" value-ref="someFilter"/>
+        </util:map>
+        </property> -->
+        <!--过滤器链定义：定义一些相关过滤规则-->
+        <property name="filterChainDefinitions">
+            <value>
+                # some example chain definitions
+                <!--授权，表示只有005号角色才能访问这个页面-->
+                /functionList.html = authc, roles[005]
+                <!--退出登录-->
+                /employee/loginOut = logout
+                <!--释放登录页面请求-->
+                /index.html = anon
+                <!--释放登录请求-->
+                /employee/login = anon
+                <!--释放css样式请求-->
+                /css/** = anon
+                <!--释放js请求-->
+                /js/** = anon
+                <!--所有请求都需要认证-->
+                /** = authc
+                # more URL-to-FilterChain definitions here
+            </value>
+        </property>
+    </bean>
+
+    <!--初始化securityManager-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myRealm"></property>
+    </bean>
+
+    <!--管理生命周期对象-->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <!--初始化realm-->
+    <bean id="myRealm" class="com.ujiuye.realm.MyRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="MD5"></property>
+                <!--迭代次数-->
+                <property name="hashIterations" value="3"></property>
+            </bean>
+        </property>
+    </bean>
+</beans>

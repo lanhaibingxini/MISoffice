@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>功能页面</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/color.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div id="tb">
+    <a href="/add.html" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增</a>
+    功能名称：<input id="fname" type="text">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="reloadFunctionList()">搜索</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true" onclick="batchDelete()">批量删除</a>
+</div>
+<table id="dg"></table>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url:'/function/getFunctionList',
+        columns:[[
+            {field:'fid',title:'功能id',width:100,checkbox:'true'},
+            {field:'fcode',title:'功能编码',width:100},
+            {field:'fname',title:'功能名称',width:100},
+            {field:'furl',title:'功能链接',width:100},
+            {field:'remark2',title:'父级功能',width:100},
+            {field:'operate',title:'操作',width:100,
+                formatter: function(value,row,index){
+                    return "<a href=# onclick=updateFunction("+row.fid+")>修改</a>\
+                        <a href=# onclick=updateFunction("+row.fid+")>详情</a>\
+                        <a href=# onclick=deleteFunction("+row.fid+")>删除</a>";
+                }}
+        ]],
+        pagination:true,
+        pageNumber:1,
+        pageSize:3,
+        pageList:[3,5,7],
+        toolbar: '#tb'
+    });
+    
+    //搜索方法，重新载入function数据
+    function reloadFunctionList(){
+        $('#dg').datagrid('load', {
+            fname: $("#fname").val()
+        });
+    }
+
+    //将需要修改的信息存入session里面
+    function updateFunction(fid){
+        $.ajax({
+            url:"/function/getUpdateFunction?fid="+fid,
+            success:function (data) {
+                if (data.success){
+                    window.location.href = "/edit.html";
+                }else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    //删除方法
+    function deleteFunction(fid) {
+        if (confirm("确定要删除吗？")) {
+            $.ajax({
+                url:"/function/deleteFunctionByFid?fid="+fid,
+                success:function (data) {
+                    if (data.success){
+                        window.location.href = "/functionList.html";
+                    }else {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+
+    }
+
+    //批量删除
+    function batchDelete() {
+        var rows = $('#dg').datagrid('getChecked');
+        var fids = "";
+        for (var i = 0 ; i < rows.length; i++){
+            fids += rows[i].fid + ",";
+        }
+        $.ajax({
+            url:"/function/batchDelete?fids="+fids,
+            success:function (data) {
+                alert(data.message);
+                if (data.success){
+                    window.location.href = "/functionList.html";
+                }else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
